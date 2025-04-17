@@ -1,0 +1,13 @@
+routes:
+  -
+    uri: /*
+    upstream:
+      type: roundrobin
+      nodes:
+        "app1:3000": 1
+        "app2:3000": 1
+        "app3:3000": 1
+        "app4:3000": 1
+        "app5:3000": 1
+      
+#END

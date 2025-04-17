@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: "fiber-app"
+    static_configs:
+      - targets: 
+          - "app1:3000"
+          - "app2:3000"
+          - "app3:3000"
+          - "app4:3000"
+          - "app5:3000"
+      
+
+  - job_name: "api-gateways"
+    static_configs:
+      - targets:
+          - "express-gateway:8080"
+          - "ocelot:80"
+          - "kong:8000"
+          - "krakend:8080"
+          - "tyk:8080"
+          - "apisix:9080"

@@ -1,0 +1,21 @@
+{
+    "Routes": [
+      {
+        "DownstreamPathTemplate": "/",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          { "Host": "app1", "Port": 3000 },
+          { "Host": "app2", "Port": 3000 },
+          { "Host": "app3", "Port": 3000 },
+          { "Host": "app4", "Port": 3000 },
+          { "Host": "app5", "Port": 3000 }
+        ],
+        "LoadBalancerOptions": {
+          "Type": "RoundRobin"
+        },
+        "UpstreamPathTemplate": "/",
+        "UpstreamHttpMethod": [ "Get" ]
+      }
+    ]
+  }
+  
