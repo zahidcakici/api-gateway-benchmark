@@ -1,56 +1,59 @@
 services:
-  app1:
+  app:
     build: ./app
+    image: myapp:latest
+
+  app1:
+    image: myapp:latest
     environment:
       - APP_NAME=app1
     ports:
       - "3000:3000"
+
   app2:
-    build: ./app
+    image: myapp:latest
     environment:
       - APP_NAME=app2
     ports:
       - "3001:3000"
+
   app3:
-    build: ./app
+    image: myapp:latest
     environment:
       - APP_NAME=app3
     ports:
       - "3002:3000"
+
   app4:
-    build: ./app
+    image: myapp:latest
     environment:
       - APP_NAME=app4
     ports:
       - "3003:3000"
+
   app5:
-    build: ./app
+    image: myapp:latest
     environment:
       - APP_NAME=app5
     ports:
       - "3004:3000"
 
-  express-gateway:
-    image: express-gateway
-    container_name: express-gateway
+  apisix:
+    image: apache/apisix:3.12.0-debian
+    container_name: apisix
+    environment:
+      APISIX_STAND_ALONE: true
     ports:
-      - "8081:8080"
+      - "8000:9080"
     volumes:
-      - ./gateways/express-gateway/gateway.config.yml:/var/lib/eg/gateway.config.yml
-
-  ocelot:
-    build: ./gateways/ocelot
-    container_name: ocelot
-    ports:
-      - "8082:8080"
-    volumes:
-      - ./gateways/ocelot/ocelot.json:/app/ocelot.json
+      - ./gateways/apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml
+      - ./gateways/apisix/apisix.yaml:/usr/local/apisix/conf/config.yaml
 
   kong:
-    image: kong
+    image: kong:3.9.0
     container_name: kong
     ports:
-      - "8083:8000"
+      - "8000:8000"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: "/kong/kong.yaml"
@@ -58,80 +61,60 @@ services:
       - ./gateways/kong/kong.yaml:/kong/kong.yaml
 
   krakend:
-    image: devopsfaith/krakend
+    image: krakend:2.10.0
     container_name: krakend
     ports:
-      - "8084:8080"
+      - "8000:8080"
     volumes:
       - ./gateways/krakend/krakend.json:/etc/krakend/krakend.json
 
   tyk:
-    image: tykio/tyk-gateway
+    image: tykio/tyk-gateway:v5.8.1
     container_name: tyk
+    # platform: linux/amd64     # Unfortunately, Tyk image does not support ARM64 architecture
     ports:
-      - "8085:8080"
+      - "8000:8080"
     depends_on:
       - tyk-redis
     volumes:
       - ./gateways/tyk/tyk.conf:/etc/tyk/tyk.conf
+      - ./gateways/tyk/apps/:/opt/tyk-gateway/apps/
+
   tyk-redis:
-    image: redis:6.2.7-alpine
+    image: redis:8.0.2-alpine
     container_name: tyk-redis
     ports:
       - "6379:6379"
 
-  apisix:
-    image: apache/apisix
-    container_name: apisix
-    environment:
-      APISIX_STAND_ALONE: true
+  yarp:
+    image: mcr.microsoft.com/dotnet/nightly/yarp:2.3-preview
+    container_name: yarp
     ports:
-      - "8086:9080"
+      - "8000:5000"
     volumes:
-      - ./gateways/apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml
+      - ./gateways/yarp/yarp.config:/etc/yarp.config
+  
+  express-gateway:
+    image: express-gateway:1.16.11
+    container_name: express-gateway
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./gateways/express-gateway/gateway.config.yml:/var/lib/eg/gateway.config.yml
+
+  ocelot:
+    build: ./gateways/ocelot    # Official Ocelot image does not exist
+    container_name: ocelot
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./gateways/ocelot/ocelot.json:/app/ocelot.json
+
   
   nginx:
-    image: nginx
+    image: nginx:1.28.0
     container_name: nginx
     ports:
-      - "8088:8080"
+      - "8000:8080"
     volumes:
       - ./gateways/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-
-  wrk:
-    image: williamyeh/wrk
-    container_name: wrk
-    volumes:
-      - ./wrk-test.sh:/wrk-test.sh
-    entrypoint: ["sh", "/wrk-test.sh"]
-  
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor
-    container_name: cadvisor
-    ports:
-      - "8087:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    depends_on:
-      - prometheus
-    ports:
-      - "3005:3000"
-    volumes:
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin

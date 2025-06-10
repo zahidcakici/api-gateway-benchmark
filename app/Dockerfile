@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -6,11 +6,10 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /app/main .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o main .
 
-FROM alpine:latest
+FROM scratch
 WORKDIR /app
-
 COPY --from=builder /app/main .
 
 CMD ["/app/main"]

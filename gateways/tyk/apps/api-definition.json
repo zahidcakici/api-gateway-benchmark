@@ -1,0 +1,26 @@
+{
+  "use_keyless": true,
+  "active": true,
+  "proxy": {
+    "listen_path": "/",
+    "enable_load_balancing": true,
+    "target_list": [
+      "http://app1:3000",
+      "http://app2:3000", 
+      "http://app3:3000",
+      "http://app4:3000",
+      "http://app5:3000"
+    ],
+    "load_balancing": {
+      "type": "round-robin"
+    }
+  },
+  "version_data": {
+    "not_versioned": true,
+    "versions": {
+      "Default": {
+        "name": "Default"
+      }
+    }
+  }
+}

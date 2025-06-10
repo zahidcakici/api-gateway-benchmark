@@ -6,7 +6,7 @@ apiEndpoints:
     host: "*"
 
 serviceEndpoints:
-  fiber:
+  app:
     urls:
       - "http://app1:3000/"
       - "http://app2:3000/"
@@ -24,4 +24,5 @@ pipelines:
     policies:
       - proxy:
           - action:
-              serviceEndpoint: fiber
+              serviceEndpoint: app
+              strategy: round-robin

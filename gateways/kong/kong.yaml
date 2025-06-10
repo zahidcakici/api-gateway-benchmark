@@ -2,15 +2,15 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: fiber-service
-    url: http://fiber-upstream
+  - name: app-service
+    url: http://app-upstream
     routes:
-      - name: fiber-route
+      - name: app-route
         paths:
           - /
 
 upstreams:
-  - name: fiber-upstream
+  - name: app-upstream
     algorithm: round-robin
     targets:
       - target: app1:3000
